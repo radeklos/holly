@@ -1,0 +1,24 @@
+machine:
+  services:
+    - docker
+  post:
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  environment:
+    VOLUME_PATH: /holly/src/github.com/radeklos/holly
+    TAG: $(sed 's/release\/\(.*\)/rc\1/;s/master/latest/;s/develop/latest/;s/\//\-/' <<<$CIRCLE_BRANCH)
+    REPO: radeklos/holly
+
+dependencies:
+  override:
+    - docker build -t $REPO:$TAG .
+
+
+test:
+  override:
+    - docker run --name test -it --net=host --entrypoint go -v $(pwd):$VOLUME_PATH $REPO:$TAG test ./...
+
+deployment:
+  prod:
+    branch: master
+    commands:
+      - docker push $REPO:$TAG
