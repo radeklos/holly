@@ -6,6 +6,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorhill/cronexpr"
 
+	"github.com/radeklos/holly/api"
 	"github.com/radeklos/holly/slack"
 )
 
@@ -24,23 +25,13 @@ func NewBot(c Config) *Bot {
 	log.Printf("Creating bot instance")
 	return &Bot{
 		config:   c,
-		slackBot: slack.SlackBot{},
+		slackBot: slack.NewBot(c.SlackToken),
 	}
 }
 
 type Bot struct {
 	config   Config
-	slackBot slack.SlackBot
-}
-
-func (d *Bot) sendMessage(channel string, msg string) {
-	d.slackBot.Do(
-		slack.ChatPostMessage{
-			Chat:    &slack.Chat{Token: d.config.SlackToken},
-			Channel: channel,
-			Text:    msg,
-		},
-	)
+	slackBot *slack.SlackBot
 }
 
 func (d *Bot) registerCronMessage(message CronMessage) {
@@ -51,7 +42,10 @@ func (d *Bot) registerCronMessage(message CronMessage) {
 	}()
 
 	scheduleAction("message to "+message.Channel, cronexpr.MustParse(message.CronLine), func() {
-		d.sendMessage(message.Channel, message.Message)
+		d.slackBot.Send(slack.Message{
+			Channel: message.Channel,
+			Text:    message.Message,
+		})
 	})
 
 	log.WithFields(log.Fields{
@@ -62,10 +56,10 @@ func (d *Bot) registerCronMessage(message CronMessage) {
 }
 
 func (d *Bot) Run() {
-	log.Println("Running bot...")
 	for _, message := range d.config.CronMessages {
 		d.registerCronMessage(message)
 	}
+	api.New(d.slackBot).Run()
 }
 
 func scheduleAction(name string, cron *cronexpr.Expression, f func()) {
