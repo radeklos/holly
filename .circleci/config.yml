@@ -1,0 +1,24 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.9
+
+    working_directory: /go/src/github.com/radeklos/holly
+    steps:
+      - setup_remote_docker
+      - checkout
+
+      - run: go get -v -t -d ./...
+      - run: go test -v ./...
+
+      - deploy:
+          name: Build and push latest
+          command: |
+            go build
+
+            docker build -t radeklos/holly:latest .
+
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push radeklos/holly:latest
+
