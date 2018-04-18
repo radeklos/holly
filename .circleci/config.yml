@@ -16,9 +16,13 @@ jobs:
           name: Build and push latest
           command: |
             go build
-
+            
             docker build -t radeklos/holly:latest .
 
             docker login -u $DOCKER_USER -p $DOCKER_PASS
+            
+            export DOCKER_TAG=$(date +%Y-%m-%d)
             docker push radeklos/holly:latest
 
+            docker tag radeklos/holly:latest $radeklos/holly:$DOCKER_TAG
+            docker push radeklos/holly:$DOCKER_TAG
