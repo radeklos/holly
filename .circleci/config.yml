@@ -24,5 +24,5 @@ jobs:
             export DOCKER_TAG=$(date +%Y-%m-%d)
             docker push radeklos/holly:latest
 
-            docker tag radeklos/holly:latest $radeklos/holly:$DOCKER_TAG
+            docker tag radeklos/holly:latest radeklos/holly:$DOCKER_TAG
             docker push radeklos/holly:$DOCKER_TAG
