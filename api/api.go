@@ -28,7 +28,7 @@ func (a *Api) SendMessage(w http.ResponseWriter, r *http.Request) {
 	var message Message
 	_ = json.NewDecoder(r.Body).Decode(&message)
 	log.Infof("sending message: %s to channel %s", message.Text, message.Channel)
-	go a.SlackBot.Send(slack.Message{
+	go a.SlackBot.PostMessage(slack.Message{
 		Channel: message.Channel,
 		Text:    message.Text,
 	})

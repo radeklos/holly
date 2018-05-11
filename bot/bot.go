@@ -42,7 +42,7 @@ func (d *Bot) registerCronMessage(message CronMessage) {
 	}()
 
 	scheduleAction("message to "+message.Channel, cronexpr.MustParse(message.CronLine), func() {
-		d.slackBot.Send(slack.Message{
+		d.slackBot.PostMessage(slack.Message{
 			Channel: message.Channel,
 			Text:    message.Message,
 		})
