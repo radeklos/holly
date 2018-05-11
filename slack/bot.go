@@ -10,12 +10,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func NewBot(token string) *SlackBot {
-	return &SlackBot{
-		Token: token,
-	}
-}
-
 type Message struct {
 	Text    string `json:"text"`
 	Channel string `json:"channel"`
@@ -23,14 +17,20 @@ type Message struct {
 	Parse   string `json:"parse"`
 }
 
-type SlackBot struct {
-	Token string
-}
-
 type SlackResponse struct {
 	Ok    bool   `json:"ok"`
 	Stuff string `json:"stuff,omitempty"`
 	Error string `json:"error,omitempty"`
+}
+
+func NewBot(token string) *SlackBot {
+	return &SlackBot{
+		Token: token,
+	}
+}
+
+type SlackBot struct {
+	Token string
 }
 
 func (s *SlackBot) PostMessage(msg Message) {
